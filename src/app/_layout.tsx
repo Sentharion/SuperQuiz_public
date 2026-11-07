@@ -18,7 +18,6 @@ export default function TabLayout() {
     async function prepareApp() {
       try {
         await SoundService.init();
-        await useGameStore.getState().loadFlashcardScores();
       } catch (e) {
         console.warn(e);
       } finally {

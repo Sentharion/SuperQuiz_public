@@ -120,3 +120,36 @@ export const colorClasses: Record<PlayerColor, string> = {
   gray: "bg-gray-500",
   teal: "bg-teal-500",
 };
+
+interface PlanOption {
+    id: string;
+    label: string;
+    price: string;
+    period: string;
+    savings?: string;
+    popular?: boolean;
+}
+
+export const PLANS: PlanOption[] = [
+    {
+        id: "monthly",
+        label: "Plan Miesięczny",
+        price: "24,99 zł",
+        period: "/ miesiąc",
+    },
+    {
+        id: "yearly",
+        label: "Plan Roczny",
+        price: "149,99 zł",
+        period: "/ rok",
+        savings: "Oszczędzasz 50%",
+        popular: true,
+    },
+    {
+        id: "lifetime",
+        label: "Dostęp Na Zawsze",
+        price: "249,99 zł",
+        period: "jednorazowo",
+        savings: "Płatność jednorazowa",
+    },
+];

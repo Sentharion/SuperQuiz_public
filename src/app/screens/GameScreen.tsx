@@ -37,10 +37,6 @@ const GameScreen = () => {
         isPaused,
         pauseGame,
         unpauseGame,
-        flashcardScores,
-        flashcardStartTime,
-        flashcardTimer,
-        setFlashcardTimer,
         toggleSound,
         soundEnabled,
     } = useGameStore();
@@ -335,45 +331,6 @@ const GameScreen = () => {
         currentPlayerId,
         currentQuestionIndex,
     ]);
-
-    useEffect(() => {
-        if (
-            mode !== "flashcards" ||
-            flashcardStartTime === null ||
-            gameFinished
-        ) {
-            return;
-        }
-
-        const interval = setInterval(() => {
-            const state = useGameStore.getState();
-
-            if (
-                state.mode !== "flashcards" ||
-                state.flashcardStartTime === null ||
-                state.gameFinished
-            ) {
-                return;
-            }
-
-            let elapsed = 0;
-            if (state.isPaused && state.flashcardPausedAt !== null) {
-                elapsed = state.flashcardPausedAt - state.flashcardStartTime - state.flashcardPausedTime;
-            } else {
-                elapsed = Date.now() - state.flashcardStartTime - state.flashcardPausedTime;
-            }
-
-            setFlashcardTimer(Math.max(0, elapsed));
-        }, 100);
-
-        return () => clearInterval(interval);
-    }, [
-        mode,
-        flashcardStartTime,
-        gameFinished,
-        setFlashcardTimer,
-    ]);
-
     /*
      * Szerokość paska timera.
      */
@@ -504,56 +461,6 @@ const GameScreen = () => {
                                 </Text>
                             </View>
                         ))
-                ) : mode === "flashcards" ? (
-                    <View className="w-full bg-backgroundLight rounded-xl overflow-hidden">
-
-                        <View className=" bg-primary/50 flex-row justify-center p-4">
-                            <Text className="text-white text-xl font-semibold">Ostatnie Wyniki</Text>
-                        </View>
-
-                        <View className="flex-row px-4 py-3 border-b border-border">
-                            <Text className="text-gray-400 font-bold w-12">
-                                #
-                            </Text>
-
-                            <Text className="text-gray-400 font-bold flex-1">
-                                Punkty
-                            </Text>
-
-                            <Text className="text-gray-400 font-bold w-20 text-right">
-                                Czas
-                            </Text>
-
-                            <Text className="text-gray-400 font-bold w-28 text-right">
-                                Data
-                            </Text>
-                        </View>
-
-                        {flashcardScores.map((score, index) => {
-                            return (
-                                <View
-                                    key={`${score.date}-${index}`}
-                                    className="flex-row items-center px-4 py-3 border-b border-border"
-                                >
-                                    <Text className="text-white w-12">
-                                        {index + 1}
-                                    </Text>
-
-                                    <Text className="text-white font-bold flex-1">
-                                        {score.points}
-                                    </Text>
-
-                                    <Text className="text-gray-400 w-20 text-right">
-                                        {formatTime(score.time)}
-                                    </Text>
-
-                                    <Text className="text-gray-400 w-28 text-right">
-                                        {new Date(score.date).toLocaleDateString("pl-PL")}
-                                    </Text>
-                                </View>
-                            )
-                        })}
-                    </View>
                 ) : (
                     <>
                         {player1 && (
@@ -595,25 +502,6 @@ const GameScreen = () => {
                     </View>
                 ) : (
                     <View className="flex-row items-center gap-2">
-
-                        <View>
-                            {mode !== "flashcards" && (
-                                <Text className="text-white text-lg font-bold">
-                                    {mode === "solo"
-                                        ? "Tryb Solo"
-                                        : etap}
-                                </Text>
-                            )}
-
-                            {mode === "flashcards" && (
-                                <View className="bg-border rounded-2xl p-2">
-                                    <Text className="text-white font-bold text-center">
-                                        Czas: {formatTime(flashcardTimer)}
-                                    </Text>
-                                </View>
-                            )}
-                        </View>
-
                         {stage === 3 && (
                             <View className="bg-borderHover rounded-2xl p-2">
                                 <Text className="text-white font-bold">
