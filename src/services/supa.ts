@@ -35,21 +35,3 @@ export const getEasyQuestionsForGame = async (count = 500) => {
     return null;
   }
 };
-
-export const getFlashcards = async (moduleArg: number) => {
-  try {
-    const { data, error } = await supabase.rpc('getflashcards', {
-      modulearg: moduleArg
-    });
-
-    if (error) {
-      console.error('Błąd RPC:', error.message);
-      return null;
-    }
-
-    return data;
-  } catch (err) {
-    console.error('Nieoczekiwany błąd:', err);
-    return null;
-  }
-};

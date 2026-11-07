@@ -1,10 +1,9 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
-import { type Flashcard, FlashcardScore, generateBotName, getSex, type PlayerColor, type Question } from "../constants/types";
+import { type Flashcard, generateBotName, getSex, type PlayerColor, type Question } from "../constants/types";
 import SoundService from "../services/sound";
 import { useProfileStore } from "./profileStore";
 
-export type GameMode = "classic" | "final" | "solo" | "multiplayer" | "flashcards";
+export type GameMode = "classic" | "final" | "solo" | "multiplayer"
 export type GameStage = 1 | 2 | 3;
 
 export interface Player {
@@ -25,19 +24,13 @@ interface GameStore {
     stage: GameStage;
     players: Player[];
     questions: Question[];
-    flashcards: Flashcard[];
     currentQuestionIndex: number;
     questionsRemaining: number;
-    flashcardTimer: number;
-    flashcardStartTime: number | null;
     timeLimit: number;
     currentPlayerId: number | null;
     selectedPlayerId: number | null;
     awaitingDesignation: boolean;
     designatorId: number | null;
-    flashcardScores: FlashcardScore[];
-    flashcardPausedAt: number | null;
-    flashcardPausedTime: number;
     soundEnabled: boolean;
 
     round: 1 | 2;
@@ -63,13 +56,10 @@ interface GameStore {
     setSelectedPlayer: (playerId: number | null) => void;
 
     nextStage: () => void;
-    setFlashcardTimer: (timer: number) => void;
     finishGame: () => void;
     resetGame: () => void;
     finishTransition: () => void;
     skipQuestion: () => void;
-    startFlashcardTimer: () => void;
-    stopFlashcardTimer: () => void;
     pauseGame: () => void;
     unpauseGame: () => void;
     isPaused: boolean;
@@ -79,8 +69,6 @@ interface GameStore {
     getAlivePlayers: () => Player[];
     addPlayer: (player: Player) => void;
     removePlayer: (id: number) => void;
-    addFlashcardScore: (points: number, time: number) => void;
-    loadFlashcardScores: () => Promise<void>;
     toggleSound: () => void;
 
 }
@@ -91,13 +79,13 @@ const updateProfile = () => {
     const game = useGameStore.getState();
     const mainHuman = game.players.find(p => p.id === 1 && !p.isBot);
 
-    if (game.mode === "final" || game.mode === "classic" || game.mode === "solo" || game.mode === "multiplayer" || game.mode === "flashcards") {
+    if (game.mode === "final" || game.mode === "classic" || game.mode === "solo" || game.mode === "multiplayer") {
         if (mainHuman && mainHuman.points > profile.highestScore) {
             profile.updateHighestScore(mainHuman.points);
         }
     }
 
-    if (game.mode === "classic" || game.mode === "final" || game.mode === "multiplayer" || game.mode === "flashcards") {
+    if (game.mode === "classic" || game.mode === "final" || game.mode === "multiplayer") {
         const players = game.players;
         if (mainHuman) {
             const hasHigherScorer = players.some(p => p.id !== mainHuman.id && p.points > mainHuman.points);
@@ -116,9 +104,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
     flashcards: [],
     currentQuestionIndex: 0,
     questionsRemaining: 0,
-    flashcardTimer: 0,
-    flashcardStartTime: null,
-    flashcardPausedAt: null,
     currentPlayerId: null,
     selectedPlayerId: null,
     awaitingDesignation: false,
@@ -134,7 +119,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
     buzzLocked: false,
     timeLimit: 5,
     gameFinished: false,
-    flashcardScores: [],
     isTransitioning: false,
     isPaused: false,
 
@@ -163,7 +147,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         } else {
             let playersCount = 0;
-            if (mode === "solo" || mode === "flashcards") playersCount = 1;
+            if (mode === "solo") playersCount = 1;
             else if (mode === "final") playersCount = 3;
             else playersCount = 1 + bots;
 
@@ -206,17 +190,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
             mode,
             stage: startingStage as GameStage,
             players: playersToUse,
-            questions: mode === "flashcards" ? [] : questions,
-            flashcards: mode === "flashcards" ? (flashcards as Flashcard[]) : [],
+            questions: questions,
             currentQuestionIndex: 0,
             questionsRemaining: startingStage === 3 ? 40 : 0,
             currentPlayerId: startPlayerId,
             selectedPlayerId: null,
             awaitingDesignation: false,
-            flashcardTimer: 0,
-            flashcardStartTime: mode === "flashcards" ? Date.now() : null,
-            flashcardPausedAt: null,
-            flashcardPausedTime: 0,
             designatorId: null,
             round: 1,
             currentSeat: 1,
@@ -230,7 +209,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }),
 
     nextQuestion: () => set((state) => {
-        const total = state.mode === "flashcards" ? state.flashcards.length : state.questions.length;
+        const total = state.questions.length;
         const nextRemaining = state.stage === 3 || state.mode === "final" ? Math.max(0, state.questionsRemaining - 1) : state.questionsRemaining;
 
         return {
@@ -244,28 +223,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         return {
             isPaused: true,
-            flashcardPausedAt:
-                state.mode === "flashcards" && state.flashcardStartTime !== null
-                    ? Date.now()
-                    : null,
         };
     }),
     unpauseGame: () => set((state) => {
         if (!state.isPaused) return state;
 
-        let pausedTime = state.flashcardPausedTime;
-
-        if (
-            state.mode === "flashcards" &&
-            state.flashcardPausedAt !== null
-        ) {
-            pausedTime += Date.now() - state.flashcardPausedAt;
-        }
-
         return {
             isPaused: false,
-            flashcardPausedAt: null,
-            flashcardPausedTime: pausedTime,
         };
     }),
 
@@ -323,19 +287,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     finishGame: () => {
         const state = get();
-        if (state.mode === "flashcards") {
-            state.stopFlashcardTimer();
-
-            const updatedState = get();
-            const player = updatedState.players.find(
-                p => p.id === 1 && !p.isBot
-            )
-
-            if (player) {
-                updatedState.addFlashcardScore(player.points, updatedState.flashcardTimer)
-            }
-        }
-
         updateProfile();
 
         set({ gameFinished: true });
@@ -359,14 +310,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
     },
 
-    setFlashcardTimer: (timer: number) => set({ flashcardTimer: timer }),
-
     resetGame: () => set({
-        mode: null, stage: 1, players: [], questions: [], flashcards: [], currentQuestionIndex: 0,
+        mode: null, stage: 1, players: [], questions: [], currentQuestionIndex: 0,
         questionsRemaining: 0, currentPlayerId: null, selectedPlayerId: null,
         awaitingDesignation: false, designatorId: null, round: 1, currentSeat: 1, buzzEnabled: false,
-        buzzQueue: [], buzzLocked: false, gameFinished: false, isTransitioning: false, flashcardTimer: 0,
-        flashcardStartTime: null, flashcardPausedAt: null, flashcardPausedTime: 0, isPaused: false,
+        buzzQueue: [], buzzLocked: false, gameFinished: false, isTransitioning: false, isPaused: false,
     }),
 
     updatePlayer: (playerId, updates) => set((state) => ({
@@ -409,7 +357,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 state.updatePlayer(playerId, { points: player.points + 20 });
             }
 
-            if (state.mode === "solo" || state.mode === "flashcards") {
+            if (state.mode === "solo") {
                 state.updatePlayer(playerId, { points: player.points + 10 });
             }
 
@@ -418,7 +366,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
             set({ designatorId: null });
 
-            if ((state.stage === 2 && state.mode !== "solo" && state.mode !== "flashcards") || (state.stage === 3 && anyPlayerHas30 && state.mode !== "solo" && state.mode !== "flashcards")) {
+            if ((state.stage === 2 && state.mode !== "solo") || (state.stage === 3 && anyPlayerHas30 && state.mode !== "solo")) {
                 const aliveNow = get().players.filter(p => p.active);
 
                 if (aliveNow.length === 1) {
@@ -433,7 +381,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             }
         } else {
             let newLives = Math.max(player.lives - 1, 0);
-            if ((state.mode !== "solo" && state.mode !== "multiplayer" && state.mode !== "flashcards") && state.stage === 1 && player.lives == 2) {
+            if ((state.mode !== "solo" && state.mode !== "multiplayer") && state.stage === 1 && player.lives == 2) {
                 newLives = 0;
             }
 
@@ -450,7 +398,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 state.finishGame();
                 return;
             }
-            if (state.mode === "flashcards" && newLives === 0) {
+            if (newLives === 0) {
                 state.nextQuestion();
                 state.finishGame();
                 return;
@@ -466,7 +414,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             return;
         }
 
-        if (!correct && newState.stage !== 1 && newState.mode !== "solo" && state.mode !== "flashcards") {
+        if (!correct && newState.stage !== 1 && newState.mode !== "solo") {
             const currentDesignatorId = newState.designatorId;
             if (playerId === currentDesignatorId) {
                 set({ designatorId: null });
@@ -493,7 +441,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (alive.length === 0) return;
 
         if (state.stage === 1) {
-            if (state.mode === "solo" || state.mode === "flashcards") {
+            if (state.mode === "solo") {
                 return;
             }
 
@@ -528,7 +476,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             }
         }
         else if (state.stage === 2) {
-            if (state.mode === "solo" || state.mode === "flashcards") return;
+            if (state.mode === "solo") return;
 
             const currentId = state.currentPlayerId;
             const currentIndex = state.players.findIndex(p => p.id === currentId);
@@ -544,7 +492,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             });
         }
         else if (state.stage === 3) {
-            if (state.mode === "solo" || state.mode === "flashcards") return;
+            if (state.mode === "solo") return;
 
             set({
                 currentPlayerId: null,
@@ -563,18 +511,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         if (state.mode === "solo") {
             if (alive.length === 0) {
-                state.finishGame();
-            }
-            return;
-        }
-
-        if (state.mode === "flashcards") {
-            if (alive.length === 0) {
-                state.finishGame();
-                return;
-            }
-
-            if (state.flashcards.length > 0 && state.currentQuestionIndex >= state.flashcards.length - 1) {
                 state.finishGame();
             }
             return;
@@ -735,79 +671,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
             players: state.players.filter(p => p.id !== id)
         }));
     },
-
-    startFlashcardTimer: () => {
-        set({
-            flashcardTimer: 0,
-            flashcardStartTime: Date.now(),
-            flashcardPausedAt: null,
-            flashcardPausedTime: 0,
-        });
-    },
-
-    stopFlashcardTimer: () => {
-        const state = get();
-
-        if (state.flashcardStartTime === null) return;
-
-        let pausedTime = state.flashcardPausedTime
-
-        if (state.flashcardPausedAt !== null) {
-            pausedTime += Date.now() - state.flashcardPausedAt;
-        }
-
-
-        const elapsed = Date.now() - state.flashcardStartTime - pausedTime;
-
-        set({
-            flashcardTimer: elapsed,
-            flashcardStartTime: null,
-            flashcardPausedAt: null,
-            flashcardPausedTime: 0,
-        });
-    },
-
-    addFlashcardScore: async (points, time) => {
-        const newScore: FlashcardScore = {
-            points,
-            time: time,
-            date: new Date().toISOString(),
-        };
-
-        const currentScores = get().flashcardScores;
-
-        const scores = [...currentScores, newScore]
-            .sort((a, b) => {
-                if (b.points !== a.points) {
-                    return b.points - a.points;
-                }
-
-                return a.time - b.time;
-            })
-            .slice(0, 10);
-
-        set({
-            flashcardScores: scores,
-        });
-
-        await AsyncStorage.setItem(
-            "flashcard_scores",
-            JSON.stringify(scores)
-        );
-    },
-
-    loadFlashcardScores: async () => {
-        try {
-            const raw = await AsyncStorage.getItem("flashcard_scores");
-            if (raw) {
-                const scores = JSON.parse(raw);
-                set({ flashcardScores: scores });
-            }
-        } catch (e) {
-            console.warn("Failed to load flashcard scores", e);
-        }
-    },
-
     toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
 
 }));

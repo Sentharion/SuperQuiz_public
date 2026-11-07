@@ -9,6 +9,7 @@ import { colorClasses, generateBotName, randomColor, type PlayerColor, type Ques
 import { getEasyQuestionsForGame, getQuestionsForGame } from "../../services/supa";
 import { useGameStore, type Player } from "../../store/gameStore";
 import { useProfileStore } from "../../store/profileStore";
+import TopBar from '../components/TopBar';
 
 
 const GameRoomScreen = () => {
@@ -26,23 +27,23 @@ const GameRoomScreen = () => {
     const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'hard'>('easy');
 
     useEffect(() => {
-    const store = useGameStore.getState();
+        const store = useGameStore.getState();
 
-    store.resetGame();
+        store.resetGame();
 
-    store.addPlayer({
-        id: 1,
-        username,
-        avatarColor: randomColor(),
-        avatar: avatarUrl || undefined,
-        points: 0,
-        isBot:false,
-        sex:'male',
-        active:true,
-        lives:3
-    });
+        store.addPlayer({
+            id: 1,
+            username,
+            avatarColor: randomColor(),
+            avatar: avatarUrl || undefined,
+            points: 0,
+            isBot: false,
+            sex: 'male',
+            active: true,
+            lives: 3
+        });
 
-}, []);
+    }, []);
 
     const getSex = () => {
         if (players.filter((p: Player) => p.sex === 'male').length > players.filter((p: Player) => p.sex === 'female').length) return 'female';
@@ -99,33 +100,33 @@ const GameRoomScreen = () => {
         setPlayerCount(playerCount - 1);
     }
 
-   const gameStartHandler = async () => {
-    let questions: Question[] = [];
+    const gameStartHandler = async () => {
+        let questions: Question[] = [];
 
-    if (selectedDifficulty === "easy") {
-        questions = await getEasyQuestionsForGame();
-    } else {
-        questions = await getQuestionsForGame();
-    }
+        if (selectedDifficulty === "easy") {
+            questions = await getEasyQuestionsForGame();
+        } else {
+            questions = await getQuestionsForGame();
+        }
 
-    setOpenModal(false);
+        setOpenModal(false);
 
-    router.replace("/screens/GameScreen");
+        router.replace("/screens/GameScreen");
 
-    setTimeout(() => {
-        startGame(
-            "multiplayer",
-            questions,
-            username,
-            players.length,
-            avatarUrl
-        );
-    }, 50);
-};
+        setTimeout(() => {
+            startGame(
+                "multiplayer",
+                questions,
+                username,
+                players.length,
+                avatarUrl
+            );
+        }, 50);
+    };
 
 
     return (
-        <SafeAreaView className="flex-1 bg-background">
+        <SafeAreaView className="flex-1">
             {/* Add Player Modal */}
             <Modal
                 visible={openModal}
@@ -198,6 +199,8 @@ const GameRoomScreen = () => {
                 </View>
             </Modal>
 
+
+            <TopBar TabName='Gra Wieloosobowa' />
             <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 8 }}>
                 <View className="bg-background border-border rounded-2xl border-2 w-full">
                     {/* Header */}
