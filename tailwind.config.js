@@ -8,8 +8,9 @@ module.exports = {
         primary: '#2563eb',
         background: '#0d1022',
         backgroundLight: '#0f172a',
-        border: '#facc15',
-        borderHover: '#eab308',
+        border: '#00D4E6',
+        borderHover: '#02e2f5',
+        borderDark: '#0097a7',
         muted: '#94a3b8',
         chance: '#f5c200'
       }

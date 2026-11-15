@@ -1,6 +1,8 @@
+import { useRewardedInterstitial } from "@/hooks/useRewardedInterstitial";
+import { useProfileStore } from "@/store/profileStore";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Pause, Play, Volume2, VolumeOff } from "lucide-react-native";
+import { Ad, Pause, Play, Volume2, VolumeOff } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
     Animated,
@@ -10,7 +12,8 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { colorClasses, formatTime } from "../../constants/types";
+import { colorClasses } from "../../constants/types";
+import { useInterstitial } from "../../hooks/useInterstitial";
 import { useGameStore } from "../../store/gameStore";
 import Answers from "../components/Answers";
 import Stand from "../components/Stand";
@@ -47,6 +50,48 @@ const GameScreen = () => {
     const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
     const router = useRouter();
+    const isPremium = useProfileStore.getState().isPremium;
+
+    const resultsReady = useGameStore(s => s.resultsReady);
+    const setResultsReady = useGameStore(s => s.setResultsReady);
+
+    const { loaded, show } = useInterstitial();
+    const [isClaimingLife, setIsClaimingLife] = useState(false);
+    const continueAfterReward = useGameStore(
+        state => state.continueAfterReward
+    );
+
+    const {
+        loaded: rewardedLoaded,
+        show: showRewarded,
+    } = useRewardedInterstitial();
+
+    const adHandled = useRef(false);
+
+    useEffect(() => {
+        if (!gameFinished) {
+            adHandled.current = false;
+            return;
+        }
+
+        if (adHandled.current) return;
+
+        adHandled.current = true;
+
+        const showAdAndContinue = async () => {
+            try {
+                if (loaded && !isPremium) {
+                    await show();
+                }
+            } catch (error) {
+                console.warn("Interstitial error:", error);
+            } finally {
+                setResultsReady(true);
+            }
+        };
+
+        showAdAndContinue();
+    }, [gameFinished, loaded, show, setResultsReady, isPremium]);
 
     const BUZZ_TIMER = 5;
 
@@ -347,6 +392,23 @@ const GameScreen = () => {
                 ? "Runda druga"
                 : "Finał";
 
+
+    const handleNextLife = async () => {
+        if (isClaimingLife || !rewardedLoaded) return;
+
+        setIsClaimingLife(true);
+
+        try {
+            const earnedReward = await showRewarded();
+            if (earnedReward) {
+                continueAfterReward();
+            }
+        } catch (error) {
+            console.error("Rewarded ad error:", error)
+        } finally {
+            setIsClaimingLife(false)
+        }
+    }
     /*
      * Ekran przejścia między etapami
      */
@@ -386,98 +448,133 @@ const GameScreen = () => {
     /*
      * Ekran końca gry
      */
-    if (gameFinished) {
+    if (gameFinished && resultsReady) {
         return (
-            <View className="flex flex-col flex-1 bg-background justify-center items-center px-8 gap-6">
 
-                <Text className="text-white text-4xl font-bold text-center">
-                    Koniec gry!
-                </Text>
+            <View className="flex-1 bg-background justify-center items-center px-10 py-8 gap-7">
 
-                {mode === "multiplayer" ? (
-                    getAlivePlayers()
-                        .sort(
-                            (a, b) =>
-                                b.points - a.points
-                        )
-                        .map((player, index) => (
-                            <View
-                                key={player.id}
-                                className="flex flex-row items-center gap-2"
-                            >
-                                <Text className="text-white text-lg">
-                                    {index + 1}.
-                                </Text>
+                {/* Nagłówek */}
+                <View className="items-center gap-2">
+                    <Text className="text-white text-4xl font-bold text-center">
+                        Koniec gry!
+                    </Text>
+                    <Text className="text-gray-400 text-base text-center">
+                        Oto wyniki Twojej rozgrywki
+                    </Text>
+                </View>
 
+                {/* Wyniki */}
+                <View className="w-full bg-slate-800/70 rounded-2xl p-5 gap-4">
+                    {mode === "multiplayer" ? (
+                        [...players]
+                            .sort((a, b) => b.points - a.points)
+                            .map((player, index) => (
                                 <View
-                                    className={`
-                                        w-16
-                                        h-16
-                                        rounded-full
-                                        flex
-                                        justify-center
-                                        items-center
-                                        overflow-hidden
-                                        ${player.avatarColor
-                                            ? colorClasses[
-                                            player.avatarColor
-                                            ]
-                                            : "red"
-                                        }
-                                    `}
+                                    key={player.id}
+                                    className="flex-row items-center gap-3"
                                 >
-                                    {player.avatar ? (
-                                        <Image
-                                            source={{
-                                                uri: player.avatar,
-                                            }}
-                                            style={{
-                                                width: "100%",
-                                                height: "100%",
-                                            }}
-                                            resizeMode="cover"
-                                        />
-                                    ) : player.sex === "male" ? (
-                                        <SimpleLineIcons
-                                            name="user"
-                                            color="white"
-                                            size={30}
-                                        />
-                                    ) : (
-                                        <SimpleLineIcons
-                                            name="user-female"
-                                            color="white"
-                                            size={30}
-                                        />
-                                    )}
-                                </View>
+                                    <Text className="text-white text-lg font-bold w-6">
+                                        {index + 1}.
+                                    </Text>
 
-                                <Text className="text-white font-bold">
-                                    {player.username}:{" "}
-                                    {player.points}{" "}
-                                    {player.points === 1
-                                        ? "punkt"
-                                        : "punkty"}
-                                </Text>
-                            </View>
-                        ))
-                ) : (
-                    <>
-                        {player1 && (
-                            <Text className="text-gray-300 text-xl text-center">
-                                Twoje punkty:{" "}
-                                {player1.points}
+                                    <View
+                                        className={`
+                                w-12 h-12 rounded-full
+                                justify-center items-center overflow-hidden
+                                ${player.avatarColor
+                                                ? colorClasses[player.avatarColor]
+                                                : "bg-red-500"
+                                            }
+                            `}
+                                    >
+                                        {player.avatar ? (
+                                            <Image
+                                                source={{ uri: player.avatar }}
+                                                className="w-full h-full"
+                                                resizeMode="cover"
+                                            />
+                                        ) : player.sex === "male" ? (
+                                            <SimpleLineIcons
+                                                name="user"
+                                                color="white"
+                                                size={24}
+                                            />
+                                        ) : (
+                                            <SimpleLineIcons
+                                                name="user-female"
+                                                color="white"
+                                                size={24}
+                                            />
+                                        )}
+                                    </View>
+
+                                    <Text className="text-white font-semibold flex-1">
+                                        {player.username}
+                                    </Text>
+
+                                    <Text className="text-primary font-bold text-lg">
+                                        {player.points} pkt
+                                    </Text>
+                                </View>
+                            ))
+                    ) : (
+                        <View className="items-center gap-2 py-2">
+                            <Text className="text-gray-400 text-base">
+                                Twój wynik
                             </Text>
-                        )}
-                    </>
+
+                            <Text className="text-white text-4xl font-bold">
+                                {player1?.points ?? 0}
+                            </Text>
+
+                            <Text className="text-gray-400 text-sm">
+                                zdobytych punktów
+                            </Text>
+                        </View>
+                    )}
+                </View>
+
+                {/* Dodatkowe życie */}
+                {mode !== "multiplayer" && (
+                    <View className="w-full bg-slate-800 rounded-2xl p-5 items-center gap-3 border border-cyan-500/30">
+
+                        <Text className="text-white text-xl font-bold text-center">
+                            Jeszcze jedna szansa!
+                        </Text>
+
+                        <Text className="text-gray-400 text-sm text-center">
+                            Obejrzyj krótką reklamę i zdobądź dodatkowe życie.
+                        </Text>
+
+                        <TouchableOpacity
+                            onPress={handleNextLife}
+                            disabled={!rewardedLoaded || isClaimingLife}
+                            className={`w-full py-4 rounded-xl flex-row justify-center items-center gap-1.5 ${rewardedLoaded && !isClaimingLife
+                                ? "bg-cyan-600"
+                                : "bg-gray-600"
+                                }`}
+                            activeOpacity={0.8}
+                        >
+                            <Text className="text-white font-bold text-base">
+                                {isClaimingLife
+                                    ? "Ładowanie nagrody..."
+                                    : rewardedLoaded
+                                        ? "Obejrzyj reklamę"
+                                        : "Reklama niedostępna"}
+                            </Text>
+                            {rewardedLoaded && (<Ad color="white" />)}
+                        </TouchableOpacity>
+                    </View>
                 )}
 
+                {/* Powrót do menu */}
                 <TouchableOpacity
                     onPress={() => {
                         resetGame();
                         router.replace("/");
                     }}
-                    className="bg-primary px-8 py-4 rounded-xl mt-5"
+                    className="w-full bg-border py-4 rounded-xl items-center"
+                    activeOpacity={0.8}
                 >
                     <Text className="text-white font-bold text-lg">
                         Wróć do menu
@@ -485,8 +582,20 @@ const GameScreen = () => {
                 </TouchableOpacity>
 
             </View>
+
         );
     }
+
+    if (gameFinished && !resultsReady) {
+        return (
+            <View className="flex-1 bg-background justify-center items-center">
+                <Text className="text-white text-xl font-bold">
+                    Przygotowujemy wyniki...
+                </Text>
+            </View>
+        );
+    }
+
 
     return (
         <View className="flex-1 pt-10">

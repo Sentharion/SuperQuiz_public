@@ -32,6 +32,12 @@
           "resizeMode": "contain"
         }
       ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-1776680095043536~2965341500"
+        }
+      ],
       "expo-audio"
     ],
     "experiments": {

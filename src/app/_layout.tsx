@@ -1,12 +1,10 @@
-import {Stack} from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import {LinearGradient} from 'expo-linear-gradient';
-import { View, Image, StyleSheet } from 'react-native';
-import "../global.css";
-import { useEffect } from 'react';
 import SoundService from '@/services/sound';
-import { useGameStore } from '@/store/gameStore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
+import { Image, StyleSheet, View } from 'react-native';
+import "../global.css";
 
 
 SplashScreen.preventAutoHideAsync();
@@ -26,13 +24,13 @@ export default function TabLayout() {
     }
 
     prepareApp();
-    
+
   }, []);
 
-  
+
   return (
     <View style={styles.container}>
-      <Image 
+      <Image
         source={require('../../assets/images/background.png')}
         style={StyleSheet.absoluteFill}
         resizeMode="cover"
@@ -40,16 +38,16 @@ export default function TabLayout() {
 
       <LinearGradient
         colors={[
-          'rgba(59, 130, 246, 0.85)',
-          'rgba(59, 110, 159, 0.85)',
-          'rgba(59, 130, 246, 0.85)'
+          'rgba(11, 45, 107, 0.85)',
+          'rgba(10, 59, 145, 0.85)',
+          'rgba(11, 76, 200, 0.85)'
         ]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
 
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "transparent" }, animation:"slide_from_right" }} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "transparent" }, animation: "slide_from_right" }} />
     </View>
   );
 }

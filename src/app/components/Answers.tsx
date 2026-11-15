@@ -17,7 +17,6 @@ const Answers = () => {
         awaitingDesignation,
         players,
         mode,
-        flashcards,
         isPaused,
     } = useGameStore();
 
@@ -44,9 +43,6 @@ const Answers = () => {
     const question =
         questions?.[currentQuestionIndex];
 
-    const flashcard =
-        flashcards?.[currentQuestionIndex];
-
     const selectedAnswer =
         selectedState?.questionIndex === currentQuestionIndex
             ? selectedState.answer
@@ -56,19 +52,6 @@ const Answers = () => {
      * Answers
      */
     const allAnswers = useMemo(() => {
-        if (mode === "flashcards") {
-            if (!flashcard?.correct_answer) {
-                return [];
-            }
-
-            const answers = [
-                flashcard.correct_answer,
-                ...(flashcard.distractors || []),
-            ];
-
-            return answers.sort(() => Math.random() - 0.5);
-        }
-
         if (!question?.correct_answer) {
             return [];
         }
@@ -76,12 +59,12 @@ const Answers = () => {
         const answers = [question.correct_answer, ...(question.distractors || [])];
 
         return answers.sort(() => Math.random() - 0.5);
-    }, [question, flashcard, mode]);
+    }, [question]);
 
     /*
      * Current answer
      */
-    const correctAnswer = mode === "flashcards" ? flashcard?.correct_answer : question?.correct_answer;
+    const correctAnswer = question?.correct_answer;
 
     /*
      * Human timer
@@ -94,15 +77,10 @@ const Answers = () => {
 
         setTimeLeft(TIME_LIMIT);
 
-        const activeItem =
-            mode === "flashcards"
-                ? flashcard
-                : question;
-
         if (
             !isCurrentPlayerHuman ||
             awaitingDesignation ||
-            !activeItem
+            !question
         ) {
             return;
         }
@@ -157,15 +135,10 @@ const Answers = () => {
      * Pauza zatrzymuje odliczanie.
      */
     useEffect(() => {
-        const activeItem =
-            mode === "flashcards"
-                ? flashcard
-                : question;
-
         if (
             isCurrentPlayerHuman ||
             awaitingDesignation ||
-            !activeItem
+            !question
         ) {
             return;
         }
@@ -216,10 +189,10 @@ const Answers = () => {
 
             if (isCorrect) {
                 chosenAnswer =
-                    activeItem.correct_answer;
+                    question.correct_answer;
             } else {
                 const wrongAnswers =
-                    activeItem.distractors || [];
+                    question.distractors || [];
 
                 if (wrongAnswers.length > 0) {
                     chosenAnswer =
@@ -234,15 +207,15 @@ const Answers = () => {
                         allAnswers.find(
                             answer =>
                                 answer !==
-                                activeItem.correct_answer
+                                question.correct_answer
                         ) ||
-                        activeItem.correct_answer;
+                        question.correct_answer;
                 }
             }
 
             const finalIsCorrect =
                 chosenAnswer ===
-                activeItem.correct_answer;
+                question.correct_answer;
 
             answerSubmittedRef.current = true;
 
@@ -310,7 +283,6 @@ const Answers = () => {
         currentPlayerId,
         awaitingDesignation,
         question,
-        flashcard,
         players,
         allAnswers,
         mode,
@@ -412,17 +384,7 @@ const Answers = () => {
     /*
      * No question
      */
-    if (
-        mode !== "flashcards" &&
-        !question
-    ) {
-        return null;
-    }
-
-    if (
-        mode === "flashcards" &&
-        !flashcard
-    ) {
+    if (!question) {
         return null;
     }
 
@@ -447,35 +409,19 @@ const Answers = () => {
             )}
 
             {/* Question */}
-            {!awaitingDesignation &&
-                mode !== "flashcards" && (
-                    <View className="px-3 mt-2 mb-4 min-h-[90px] justify-center items-center">
-
-                        <Text className="text-muted text-base text-center mb-1">
-                            {question?.category}
-                        </Text>
-
-                        <Text
-                            className="text-white text-center text-lg font-bold"
-                            numberOfLines={4}
-                            adjustsFontSizeToFit
-                        >
-                            {question?.question}
-                        </Text>
-
-                    </View>
-                )}
-
-            {/* Flashcard */}
-            {mode === "flashcards" && (
+            {!awaitingDesignation && (
                 <View className="px-3 mt-2 mb-4 min-h-[90px] justify-center items-center">
+
+                    <Text className="text-muted text-base text-center mb-1">
+                        {question?.category}
+                    </Text>
 
                     <Text
                         className="text-white text-center text-lg font-bold"
                         numberOfLines={4}
                         adjustsFontSizeToFit
                     >
-                        {flashcard?.flashcard}
+                        {question?.question}
                     </Text>
 
                 </View>

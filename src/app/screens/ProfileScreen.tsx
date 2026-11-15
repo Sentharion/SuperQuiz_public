@@ -1,7 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import {
-    ArrowLeft,
     Award,
     Camera,
     Check,
@@ -255,11 +254,11 @@ export default function ProfileScreen() {
                 showsVerticalScrollIndicator={false}
             >
                 {/* Hero Profile Card */}
-                <View className="bg-backgroundLight/95 border border-yellow-400 rounded-3xl p-6 mt-2 shadow-xl shadow-black/40">
+                <View className="bg-backgroundLight/95 border border-border rounded-3xl p-6 mt-2 shadow-xl shadow-black/40">
                     <View className="items-center">
                         {/* Avatar container with action button */}
                         <View className="relative">
-                            <View className="w-28 h-28 rounded-full border-4 border-yellow-400 bg-slate-800 justify-center items-center overflow-hidden shadow-lg shadow-yellow-500/20">
+                            <View className="w-28 h-28 rounded-full border-4 border-border bg-slate-800 justify-center items-center overflow-hidden shadow-lg shadow-border/20">
                                 {avatarUrl ? (
                                     <Image
                                         source={{ uri: avatarUrl }}
@@ -268,7 +267,7 @@ export default function ProfileScreen() {
                                     />
                                 ) : (
                                     <View className="w-full h-full bg-slate-800 justify-center items-center">
-                                        <UserRound color="#facc15" size={56} />
+                                        <UserRound color="#00D4E6" size={56} />
                                     </View>
                                 )}
                             </View>
@@ -276,7 +275,7 @@ export default function ProfileScreen() {
                             <TouchableOpacity
                                 onPress={() => setIsAvatarModalOpen(true)}
                                 activeOpacity={0.8}
-                                className="absolute bottom-0 right-0 w-9 h-9 bg-yellow-400 border-2 border-slate-900 rounded-full justify-center items-center shadow-md"
+                                className="absolute bottom-0 right-0 w-9 h-9 bg-border border-2 border-slate-900 rounded-full justify-center items-center shadow-md"
                             >
                                 <Camera color="#0f172a" size={17} />
                             </TouchableOpacity>
@@ -293,13 +292,13 @@ export default function ProfileScreen() {
                                         placeholder="Wpisz nazwę gracza"
                                         placeholderTextColor="#64748b"
                                         autoFocus
-                                        className="w-full bg-slate-900/90 border border-yellow-400 rounded-xl px-4 py-2.5 text-white font-bold text-center text-lg"
+                                        className="w-full bg-slate-900/90 border border-border rounded-xl px-4 py-2.5 text-white font-bold text-center text-lg"
                                     />
                                     <View className="flex-row gap-2 mt-1">
                                         <TouchableOpacity
                                             onPress={handleSaveUsername}
                                             activeOpacity={0.7}
-                                            className="flex-row items-center gap-1 bg-yellow-500 px-4 py-2 rounded-lg"
+                                            className="flex-row items-center gap-1 bg-border px-4 py-2 rounded-lg"
                                         >
                                             <Check color="#0f172a" size={18} />
                                             <Text className="text-slate-950 font-bold text-sm">Zapisz</Text>
@@ -324,7 +323,7 @@ export default function ProfileScreen() {
                                         {username}
                                     </Text>
                                     <View className="bg-slate-800 p-1.5 rounded-full border border-slate-700">
-                                        <Pencil color="#facc15" size={14} />
+                                        <Pencil color="#00D4E6" size={14} />
                                     </View>
                                 </TouchableOpacity>
                             )}
@@ -344,11 +343,11 @@ export default function ProfileScreen() {
                         <View className="w-full mt-4 bg-slate-900/70 border border-slate-800 p-3 rounded-2xl">
                             <View className="flex-row justify-between items-center mb-1.5">
                                 <Text className="text-xs text-slate-400 font-medium">Postęp do kolejnej rangi</Text>
-                                <Text className="text-xs text-yellow-400 font-bold">{rank.progressPercent}%</Text>
+                                <Text className="text-xs text-border font-bold">{rank.progressPercent}%</Text>
                             </View>
                             <View className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
                                 <View
-                                    className="h-full bg-yellow-400 rounded-full"
+                                    className="h-full bg-border rounded-full"
                                     style={{ width: `${rank.progressPercent}%` }}
                                 />
                             </View>
@@ -374,7 +373,7 @@ export default function ProfileScreen() {
                         </View>
 
                         {/* Highest Quiz Score */}
-                        <View className="flex-1 bg-backgroundLight/95 border border-orange-500/25 p-4 rounded-2xl">
+                        <View className="flex-1 bg-backgroundLight/95 border border-orange-500 p-4 rounded-2xl">
                             <View className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 items-center justify-center mb-2">
                                 <Flame color="#fb923c" size={22} />
                             </View>
@@ -403,7 +402,7 @@ export default function ProfileScreen() {
                             <View className="flex-row items-center gap-3">
                                 <View className="w-9 h-9 rounded-xl bg-slate-800 items-center justify-center border border-slate-700">
                                     {soundEnabled ? (
-                                        <Volume2 color="#facc15" size={18} />
+                                        <Volume2 color="#00D4E6" size={18} />
                                     ) : (
                                         <VolumeX color="#94a3b8" size={18} />
                                     )}
@@ -461,7 +460,7 @@ export default function ProfileScreen() {
                     onPress={() => setIsAvatarModalOpen(false)}
                 >
                     <Pressable
-                        className="w-full max-w-sm bg-backgroundLight border border-yellow-400 rounded-3xl p-5 shadow-2xl"
+                        className="w-full max-w-sm bg-backgroundLight border border-border rounded-3xl p-5 shadow-2xl"
                         onPress={(e) => e.stopPropagation()}
                     >
                         <View className="flex-row justify-between items-center mb-4">
@@ -478,7 +477,7 @@ export default function ProfileScreen() {
                         <TouchableOpacity
                             onPress={handlePickFromGallery}
                             activeOpacity={0.8}
-                            className="flex-row items-center justify-center gap-2 bg-yellow-400 py-3 rounded-xl mb-4"
+                            className="flex-row items-center justify-center gap-2 bg-border py-3 rounded-xl mb-4"
                         >
                             <Camera color="#0f172a" size={18} />
                             <Text className="text-slate-950 font-bold text-sm">

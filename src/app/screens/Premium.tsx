@@ -32,7 +32,7 @@ import TopBar from "../components/TopBar";
 const FEATURES = [
     {
         icon: Zap,
-        color: "#facc15",
+        color: "#00D4E6",
         title: "Nielimitowane gry",
         desc: "Graj bez ograniczeń — tyle rund i podejść, ile chcesz",
     },
@@ -112,13 +112,13 @@ export default function PremiumScreen() {
                 {/* Hero Header */}
                 <View className="px-5 pt-3 pb-6 items-center">
                     <View className="relative mb-4">
-                        <View className="w-24 h-24 rounded-3xl bg-yellow-400/15 border-2 border-yellow-400/50 items-center justify-center shadow-lg shadow-yellow-500/20">
-                            <Gem color="#facc15" size={48} />
+                        <View className="w-24 h-24 rounded-3xl bg-border/15 border-2 border-border/50 items-center justify-center shadow-lg shadow-borderDark/20">
+                            <Gem color="#00D4E6" size={48} />
                         </View>
                     </View>
 
                     <Text className="text-3xl font-black text-white text-center tracking-wide">
-                        Super <Text className="text-yellow-400">Quiz Premium</Text>
+                        Super <Text className="text-border">Quiz Premium</Text>
                     </Text>
                     <Text className="text-slate-400 text-center mt-2 text-sm leading-5 max-w-xs">
                         Odblokuj pełną bazę pytań, ekskluzywne tryby gry i trenuj do teleturnieju bez jakichkolwiek limitów!
@@ -147,7 +147,7 @@ export default function PremiumScreen() {
                             return (
                                 <View
                                     key={index}
-                                    className="w-[48.5%] bg-backgroundLight/95 border border-yellow-400 rounded-2xl p-3.5 justify-between"
+                                    className="w-[48.5%] bg-backgroundLight/95 border border-border rounded-2xl p-3.5 justify-between"
                                 >
                                     <View>
                                         <View
@@ -184,7 +184,7 @@ export default function PremiumScreen() {
                                     onPress={() => setSelectedPlan(plan.id)}
                                     activeOpacity={0.7}
                                     className={`flex-row items-center justify-between bg-backgroundLight/95 p-4 rounded-2xl border-2 ${isSelected
-                                        ? "border-yellow-400"
+                                        ? "border-border"
                                         : "border-slate-800"
                                         }`}
                                 >
@@ -192,7 +192,7 @@ export default function PremiumScreen() {
                                         {/* Radio Circle */}
                                         <View
                                             className={`w-6 h-6 rounded-full border-2 items-center justify-center ${isSelected
-                                                ? "border-yellow-400 bg-yellow-400"
+                                                ? "border-border bg-border"
                                                 : "border-slate-600 bg-slate-900"
                                                 }`}
                                         >
@@ -210,7 +210,7 @@ export default function PremiumScreen() {
                                                     {plan.label}
                                                 </Text>
                                                 {plan.popular && (
-                                                    <View className="bg-yellow-400 px-2 py-0.5 rounded-full">
+                                                    <View className="bg-border px-2 py-0.5 rounded-full">
                                                         <Text className="text-[10px] font-black text-slate-950 uppercase tracking-wider">
                                                             Popularne
                                                         </Text>
@@ -227,7 +227,7 @@ export default function PremiumScreen() {
 
                                     <View className="items-end">
                                         <Text
-                                            className={`font-black text-lg ${isSelected ? "text-yellow-400" : "text-white"
+                                            className={`font-black text-lg ${isSelected ? "text-border" : "text-white"
                                                 }`}
                                         >
                                             {plan.price}
@@ -247,10 +247,10 @@ export default function PremiumScreen() {
                     <TouchableOpacity
                         onPress={() => setShowConfirmModal(true)}
                         activeOpacity={0.85}
-                        className="rounded-2xl overflow-hidden shadow-xl shadow-yellow-500/25"
+                        className="rounded-2xl overflow-hidden shadow-xl shadow-border/25"
                     >
                         <LinearGradient
-                            colors={["#facc15", "#eab308", "#ca8a04"]}
+                            colors={[ "#5cebfa" ,"#00D4E6","#0097a7"]}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                             style={styles.ctaGradient}
@@ -264,14 +264,14 @@ export default function PremiumScreen() {
                     <TouchableOpacity
                         onPress={() => handleRestore()}
                         activeOpacity={0.85}
-                        className="rounded-2xl overflow-hidden bg-background p-4 border border-yellow-400 shadow-xl shadow-yellow-500/25 flex-row items-center justify-center gap-2">
+                        className="rounded-2xl overflow-hidden bg-background p-4 border border-border shadow-xl shadow-border/25 flex-row items-center justify-center gap-2">
                         <RotateCcw color="white" size={20} />
                         <Text className="text-white text-center font-black text-base tracking-wide">
                             Przywróc płatności
                         </Text>
                     </TouchableOpacity>
 
-                    <Text className="text-yellow-500 text-center text-[11px] mt-3 leading-4">
+                    <Text className="text-borderDark text-center text-[11px] mt-3 leading-4">
                         Płatność obsługiwana bezpiecznie. Możesz zarządzać subskrypcją w dowolnym momencie.
                     </Text>
                 </View>
@@ -284,9 +284,9 @@ export default function PremiumScreen() {
                             { icon: Zap, label: "Natychmiastowy\ndostęp" },
                             { icon: X, label: "Anuluj\nkiedy chcesz" },
                         ].map((badge, i) => (
-                            <View key={i} className="items-center flex-1 bg-backgroundLight/60 border border-yellow-300 p-3 rounded-2xl">
+                            <View key={i} className="items-center flex-1 bg-backgroundLight/60 border border-borderHover p-3 rounded-2xl">
                                 <View className="w-9 h-9 rounded-full bg-slate-900 border border-slate-800 items-center justify-center mb-1.5">
-                                    <badge.icon color="#facc15" size={17} />
+                                    <badge.icon color="#00D4E6" size={17} />
                                 </View>
                                 <Text className="text-slate-400 text-[10px] text-center font-medium leading-3">
                                     {badge.label}
@@ -309,12 +309,12 @@ export default function PremiumScreen() {
                     onPress={() => setShowConfirmModal(false)}
                 >
                     <Pressable
-                        className="w-full max-w-sm bg-backgroundLight border border-yellow-400 rounded-3xl p-6 shadow-2xl"
+                        className="w-full max-w-sm bg-backgroundLight border border-border rounded-3xl p-6 shadow-2xl"
                         onPress={(e) => e.stopPropagation()}
                     >
                         <View className="items-center mb-5">
-                            <View className="w-16 h-16 rounded-2xl bg-yellow-400/15 border-2 border-yellow-400/50 items-center justify-center mb-3">
-                                <Gem color="#facc15" size={32} />
+                            <View className="w-16 h-16 rounded-2xl bg-border/15 border-2 border-border/50 items-center justify-center mb-3">
+                                <Gem color="#00D4E6" size={32} />
                             </View>
                             <Text className="text-xl font-black text-white text-center">
                                 Potwierdź zakup
@@ -329,7 +329,7 @@ export default function PremiumScreen() {
                                 <Text className="text-slate-300 font-semibold text-sm">
                                     {currentPlan.label}
                                 </Text>
-                                <Text className="text-yellow-400 font-black text-lg">
+                                <Text className="text-border font-black text-lg">
                                     {currentPlan.price}
                                 </Text>
                             </View>
@@ -341,7 +341,7 @@ export default function PremiumScreen() {
                             className="rounded-xl overflow-hidden mb-3"
                         >
                             <LinearGradient
-                                colors={["#facc15", "#eab308"]}
+                                colors={["#00D4E6", "#0097a7"]}
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 0 }}
                                 style={styles.modalGradient}

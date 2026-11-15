@@ -43,6 +43,9 @@ interface GameStore {
     gameFinished: boolean;
     isTransitioning: boolean;
 
+    resultsReady: boolean;
+    setResultsReady: (ready: boolean) => void;
+
     startGame: (mode: GameMode, questions: Question[], username: string, bots?: number, avatar?: string | null, flashcards?: Flashcard[]) => void;
     nextQuestion: () => void;
 
@@ -64,6 +67,7 @@ interface GameStore {
     unpauseGame: () => void;
     isPaused: boolean;
 
+    continueAfterReward: () => void;
     setNextPlayer: () => void;
     checkStageTransition: () => void;
     getAlivePlayers: () => Player[];
@@ -110,6 +114,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     designatorId: null,
     flashcardPausedTime: 0,
     soundEnabled: true,
+    resultsReady: false,
 
     round: 1,
     currentSeat: 1,
@@ -205,6 +210,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             gameFinished: false,
             isTransitioning: false,
             isPaused: false,
+            resultsReady: false,
         };
     }),
 
@@ -287,9 +293,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     finishGame: () => {
         const state = get();
+
+        if (state.gameFinished) return;
+
         updateProfile();
 
-        set({ gameFinished: true });
+        set({ gameFinished: true, resultsReady: false, });
     },
 
     skipQuestion: () => {
@@ -314,7 +323,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         mode: null, stage: 1, players: [], questions: [], currentQuestionIndex: 0,
         questionsRemaining: 0, currentPlayerId: null, selectedPlayerId: null,
         awaitingDesignation: false, designatorId: null, round: 1, currentSeat: 1, buzzEnabled: false,
-        buzzQueue: [], buzzLocked: false, gameFinished: false, isTransitioning: false, isPaused: false,
+        buzzQueue: [], buzzLocked: false, gameFinished: false, isTransitioning: false, isPaused: false, resultsReady: false,
     }),
 
     updatePlayer: (playerId, updates) => set((state) => ({
@@ -394,11 +403,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
             }));
 
             if (state.mode === "solo" && newLives === 0) {
-                state.nextQuestion();
-                state.finishGame();
-                return;
-            }
-            if (newLives === 0) {
                 state.nextQuestion();
                 state.finishGame();
                 return;
@@ -517,6 +521,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
 
         if (state.mode === "classic" || state.mode === "multiplayer") {
+            if (alive.length === 0) {
+                state.finishGame();
+                return;
+            }
+
             if (state.stage === 2 && alive.length <= 3) {
                 state.nextStage();
                 return;
@@ -673,4 +682,28 @@ export const useGameStore = create<GameStore>((set, get) => ({
     },
     toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
 
+    setResultsReady: (ready) => set({ resultsReady: ready }),
+
+    continueAfterReward: () => set((state) => {
+        const player = state.players.find(p => !p.isBot);
+
+        if (!player) return state;
+
+        return {
+            players: state.players.map(p =>
+                p.id === player.id
+                    ? {
+                        ...p,
+                        lives: p.lives + 1,
+                        active: true,
+                    }
+                    : p
+            ),
+            gameFinished: false,
+            resultsReady: false,
+            isPaused: false,
+        };
+    }),
+
 }));
+

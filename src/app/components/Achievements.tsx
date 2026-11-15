@@ -147,15 +147,15 @@ const Achievements = ({ highestScore, wins }: AchievementProps) => {
                     <Text className="text-white font-bold text-lg tracking-wide">
                         Osiągnięcia
                     </Text>
-                    <View className="bg-yellow-400/20 border border-yellow-400 px-2.5 py-0.5 rounded-full">
-                        <Text className="text-yellow-400 text-xs font-bold font-mono">
+                    <View className="bg-yellow-400/20 border border-border px-2.5 py-0.5 rounded-full">
+                        <Text className="text-border text-xs font-bold font-mono">
                             {unlockedCount} / {achievements.length}
                         </Text>
                     </View>
                 </View>
                 <View className="w-full h-2 bg-slate-900 border border-slate-800 rounded-full overflow-hidden">
                     <View
-                        className="h-full bg-yellow-400 rounded-full"
+                        className="h-full bg-border rounded-full"
                         style={{ width: `${Math.round((unlockedCount / achievements.length) * 100)}%` }}
                     />
                 </View>
@@ -168,7 +168,7 @@ const Achievements = ({ highestScore, wins }: AchievementProps) => {
                         <View
                             key={ach.id}
                             className={`w-[48.5%] p-3 rounded-2xl border justify-between ${ach.unlocked
-                                ? "bg-backgroundLight/95 border-yellow-400"
+                                ? "bg-backgroundLight/95 border-border"
                                 : "bg-slate-900/60 border-slate-800/80"
                                 }`}
                         >
@@ -207,7 +207,7 @@ const Achievements = ({ highestScore, wins }: AchievementProps) => {
                                         {ach.unlocked ? "Odblokowano" : "Postęp"}
                                     </Text>
                                     <Text
-                                        className={`text-[10px] font-mono font-bold ${ach.unlocked ? "text-green-400" : "text-yellow-400"
+                                        className={`text-[10px] font-mono font-bold ${ach.unlocked ? "text-green-400" : "text-border"
                                             }`}
                                     >
                                         {ach.unlocked ? "100%" : ach.progressLabel}
@@ -220,7 +220,7 @@ const Achievements = ({ highestScore, wins }: AchievementProps) => {
                                             width: `${ach.progress}%`,
                                             backgroundColor: ach.unlocked
                                                 ? "#22c55e"
-                                                : (ach.color || "#facc15"),
+                                                : (ach.color || "#00D4E6"),
                                         }}
                                     />
                                 </View>

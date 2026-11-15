@@ -118,30 +118,30 @@ export default function HomeScreen() {
 
       <View className='flex flex-col gap-2'>
         <View className='mb-10'>
-          <Text className='text-5xl font-bold text-white text-center'>Super <Text className='text-yellow-400'>Quiz</Text></Text>
-          <Text className='mt-2 text-yellow-400 text-center text-sm tracking-[0.25em] uppercase'>Trening do Teleturnieju</Text>
+          <Text className='text-5xl font-bold text-white text-center'>Super <Text className='text-border'>Quiz</Text></Text>
+          <Text className='mt-2 text-borderHover text-center text-sm tracking-[0.25em] uppercase'>Nowa generacja</Text>
         </View>
         <View className='flex-col lg:flex-row gap-4'>
-          <TouchableOpacity onPress={modalHandler} className='bg-background border border-yellow-400 px-6 py-5 rounded-xl flex flex-col justify-center items-center gap-2' activeOpacity={0.8}>
+          <TouchableOpacity onPress={modalHandler} className='bg-background border border-border px-6 py-5 rounded-xl flex flex-col justify-center items-center gap-2' activeOpacity={0.8}>
             <Gamepad2 color='white' size={25} />
             <Text className='text-center text-white font-bold text-lg lg:text-xl'>Gra jednoosobowa</Text>
           </TouchableOpacity>
           <Link href="/screens/GameRoomScreen" asChild>
-            <TouchableOpacity className='bg-background border border-yellow-400 px-6 py-5 rounded-xl flex flex-col justify-center items-center gap-2' activeOpacity={0.8}>
+            <TouchableOpacity className='bg-background border border-border px-6 py-5 rounded-xl flex flex-col justify-center items-center gap-2' activeOpacity={0.8}>
               <UsersRound color='white' size={25} />
               <Text className='text-center text-white font-bold text-lg lg:text-xl'>Gra wieloosobowa</Text>
             </TouchableOpacity>
           </Link>
           <Link href="/screens/ProfileScreen" asChild>
-            <TouchableOpacity className='bg-background border border-yellow-400 px-6 py-5 rounded-xl flex flex-col justify-center items-center gap-2' activeOpacity={0.8}>
+            <TouchableOpacity className='bg-background border border-border px-6 py-5 rounded-xl flex flex-col justify-center items-center gap-2' activeOpacity={0.8}>
               <UserRoundPen color='white' size={25} />
               <Text className='text-center text-white font-bold text-lg lg:text-xl'>Profil</Text>
             </TouchableOpacity>
           </Link>
           <Link href="/screens/Premium" asChild>
-            <TouchableOpacity className='bg-background border border-yellow-400 px-6 py-5 rounded-xl flex flex-col justify-center items-center gap-2' activeOpacity={0.8}>
-              <Gem color='#facc15' size={25} />
-              <Text className='text-center text-yellow-400 font-bold text-lg lg:text-xl'>Premium</Text>
+            <TouchableOpacity className='bg-background border border-border px-6 py-5 rounded-xl flex flex-col justify-center items-center gap-2' activeOpacity={0.8}>
+              <Gem color='#00D4E6' size={25} />
+              <Text className='text-center text-border font-bold text-lg lg:text-xl'>Premium</Text>
             </TouchableOpacity>
           </Link>
         </View>
