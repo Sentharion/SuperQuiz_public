@@ -17,6 +17,8 @@ export interface Player {
     isBot: boolean;
     knowledge?: number;
     sex?: 'male' | 'female';
+    isPremium?: boolean;
+    isMainUser?: boolean;
 }
 
 interface GameStore {
@@ -81,7 +83,7 @@ interface GameStore {
 const updateProfile = () => {
     const profile = useProfileStore.getState();
     const game = useGameStore.getState();
-    const mainHuman = game.players.find(p => p.id === 1 && !p.isBot);
+    const mainHuman = game.players.find(p => p.isMainUser) || game.players.find(p => p.id === 1 && !p.isBot);
 
     if (game.mode === "final" || game.mode === "classic" || game.mode === "solo" || game.mode === "multiplayer") {
         if (mainHuman && mainHuman.points > profile.highestScore) {
@@ -130,6 +132,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     startGame: (mode, questions, username, bots = 0, avatar = null, flashcards = []) => set((state) => {
         let startingStage: number = mode === "final" ? 3 : 1;
         let playersToUse: Player[] = [];
+        const userIsPremium = useProfileStore.getState().isPremium;
 
         if (mode === "multiplayer") {
             playersToUse = [...state.players].map((p, index) => ({
@@ -138,6 +141,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 points: 0,
                 lives: 3,
                 active: true,
+                isPremium: Boolean(p.isMainUser && userIsPremium),
+                isMainUser: Boolean(p.isMainUser),
             }));
 
             for (let i = playersToUse.length - 1; i > 0; i--) {
@@ -158,7 +163,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
             const botNames = generateBotName(Math.max(0, playersCount - 1));
             playersToUse = [
-                { id: 1, username, avatar: avatar || undefined, points: startingStage === 3 ? 3 : 0, lives: 3, active: true, isBot: false, sex: 'male' as const },
+                {
+                    id: 1,
+                    username,
+                    avatar: avatar || undefined,
+                    points: startingStage === 3 ? 3 : 0,
+                    lives: 3,
+                    active: true,
+                    isBot: false,
+                    sex: 'male' as const,
+                    isPremium: userIsPremium,
+                    isMainUser: true,
+                },
             ];
 
             const colors = [

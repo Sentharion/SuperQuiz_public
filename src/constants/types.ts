@@ -1,23 +1,37 @@
+import type { LucideIcon } from "lucide-react-native";
+
 export interface Question {
-    id:string;
-    category:string;
-    question:string;
-    correct_answer:string;
-    distractors?:string[];
+    id: string;
+    category: string;
+    question: string;
+    correct_answer: string;
+    distractors?: string[];
 }
 
 export interface Flashcard {
     id: string;
     flashcard: string;
     correct_answer: string;
-    distractors?:string[];
-    module:number;
+    distractors?: string[];
+    module: number;
 }
 
 export interface FlashcardScore {
     points: number;
     date: string;
-    time:number;
+    time: number;
+}
+
+export interface Achievement {
+    id: string,
+    title: string,
+    desc: string,
+    unlocked: boolean,
+    progress: number,
+    progressLabel: string,
+    icon: LucideIcon,
+    color: string,
+    category: string,
 }
 
 export const BOT_NAMES = [
@@ -55,23 +69,23 @@ export const BOT_NAMES = [
     "Maria",
 ];
 
-export function generateBotName(bots:number):string[] {
-   const names:string[] = [...BOT_NAMES]
+export function generateBotName(bots: number): string[] {
+    const names: string[] = [...BOT_NAMES]
 
-   for (let i  = names.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [names[i], names[j]] = [names[j], names[i]];
-   }
+    for (let i = names.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [names[i], names[j]] = [names[j], names[i]];
+    }
 
-   return names.slice(0,bots);
+    return names.slice(0, bots);
 }
 
-export function getSex(name:string): 'male' | 'female' {
-    if(name[name.length-1] === "a") return "female"
+export function getSex(name: string): 'male' | 'female' {
+    if (name[name.length - 1] === "a") return "female"
     return "male"
 }
 
-export type PlayerColor =  "red" | "green" | "blue" | "indigo" | "orange" | "purple" | "pink" | "cyan" | "magenta" | "brown" | "gray" | "teal";
+export type PlayerColor = "red" | "green" | "blue" | "indigo" | "orange" | "purple" | "pink" | "cyan" | "magenta" | "brown" | "gray" | "teal";
 
 export const PLAYER_COLORS: PlayerColor[] = ["red", "green", "blue", "indigo", "orange", "purple", "pink", "cyan", "magenta", "brown", "gray", "teal"];
 
@@ -107,18 +121,18 @@ export const formatTime = (milliseconds: number) => {
 };
 
 export const colorClasses: Record<PlayerColor, string> = {
-  red: "bg-red-500",
-  green: "bg-green-500",
-  blue: "bg-blue-500",
-  indigo: "bg-indigo-500",
-  orange: "bg-orange-500",
-  purple: "bg-purple-500",
-  pink: "bg-pink-500",
-  cyan: "bg-cyan-500",
-  magenta: "bg-fuchsia-500",
-  brown: "bg-amber-800",
-  gray: "bg-gray-500",
-  teal: "bg-teal-500",
+    red: "bg-red-500",
+    green: "bg-green-500",
+    blue: "bg-blue-500",
+    indigo: "bg-indigo-500",
+    orange: "bg-orange-500",
+    purple: "bg-purple-500",
+    pink: "bg-pink-500",
+    cyan: "bg-cyan-500",
+    magenta: "bg-fuchsia-500",
+    brown: "bg-amber-800",
+    gray: "bg-gray-500",
+    teal: "bg-teal-500",
 };
 
 interface PlanOption {

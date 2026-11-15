@@ -53,6 +53,7 @@ export default function ProfileScreen() {
     const highestScore = useProfileStore((state: ProfileStore) => state.highestScore);
     const wins = useProfileStore((state: ProfileStore) => state.wins);
     const resetStats = useProfileStore((state: ProfileStore) => state.resetStats);
+    const isPremium = useProfileStore((state: ProfileStore) => state.isPremium);
 
     const soundEnabled = useGameStore((state) => state.soundEnabled);
     const toggleSound = useGameStore((state) => state.toggleSound);
@@ -255,10 +256,17 @@ export default function ProfileScreen() {
             >
                 {/* Hero Profile Card */}
                 <View className="bg-backgroundLight/95 border border-border rounded-3xl p-6 mt-2 shadow-xl shadow-black/40">
-                    <View className="items-center">
+                    <View className={`items-center ${isPremium ? "-mt-4" : ""}`}>
                         {/* Avatar container with action button */}
-                        <View className="relative">
-                            <View className="w-28 h-28 rounded-full border-4 border-border bg-slate-800 justify-center items-center overflow-hidden shadow-lg shadow-border/20">
+                        <View className="relative justify-center items-center flex ">
+                            {/* Premium Badge */}
+                            {isPremium && (
+                                <View className="mt-3 px-4 flex justify-center py-2 rounded-full">
+                                    <Crown color="gold" size={34} />
+                                </View>
+                            )}
+
+                            <View className={`w-28 h-28 rounded-full border-4 ${isPremium ? "border-yellow-400" : "border-border"} bg-slate-800 justify-center items-center overflow-hidden shadow-lg shadow-border/20`}>
                                 {avatarUrl ? (
                                     <Image
                                         source={{ uri: avatarUrl }}
@@ -267,22 +275,31 @@ export default function ProfileScreen() {
                                     />
                                 ) : (
                                     <View className="w-full h-full bg-slate-800 justify-center items-center">
-                                        <UserRound color="#00D4E6" size={56} />
+                                        <UserRound color={isPremium ? "gold" : "cyan"} size={56} />
                                     </View>
                                 )}
                             </View>
 
+
                             <TouchableOpacity
                                 onPress={() => setIsAvatarModalOpen(true)}
                                 activeOpacity={0.8}
-                                className="absolute bottom-0 right-0 w-9 h-9 bg-border border-2 border-slate-900 rounded-full justify-center items-center shadow-md"
+                                className={`absolute bottom-0 right-0 w-9 h-9 ${isPremium ? "bg-yellow-400" : "bg-border"} border-2 border-slate-900 rounded-full justify-center items-center shadow-md`}
                             >
                                 <Camera color="#0f172a" size={17} />
                             </TouchableOpacity>
                         </View>
 
+                        {isPremium && (
+                            <View className="mt-2 flex-row items-center gap-1 px-2 py-1 rounded-full bg-amber-400/10 border border-amber-400/30">
+                                <Text className="text-[9px] font-black tracking-wider text-amber-300">
+                                    PREMIUM
+                                </Text>
+                            </View>
+                        )}
+
                         {/* Username + Edit mode */}
-                        <View className="w-full mt-4 items-center">
+                        <View className={`("w-full  ${isPremium ? "mt-2" : "mt-4"} items-center")`}>
                             {isEditingUsername ? (
                                 <View className="w-full max-w-xs items-center gap-2">
                                     <TextInput
@@ -317,8 +334,7 @@ export default function ProfileScreen() {
                                 <TouchableOpacity
                                     onPress={() => setIsEditingUsername(true)}
                                     activeOpacity={0.7}
-                                    className="flex-row items-center justify-center gap-2"
-                                >
+                                    className="flex-row items-center justify-center gap-2">
                                     <Text className="text-2xl font-black text-white tracking-wide">
                                         {username}
                                     </Text>
@@ -528,6 +544,6 @@ export default function ProfileScreen() {
                     </Pressable>
                 </Pressable>
             </Modal>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }

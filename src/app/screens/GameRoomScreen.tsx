@@ -1,7 +1,7 @@
 import { SimpleLineIcons } from '@expo/vector-icons';
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
-import { Bot, Check, UserRoundPlus, UserX, X } from "lucide-react-native";
+import { Bot, Check, Crown, UserRoundPlus, UserX, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -25,6 +25,7 @@ const GameRoomScreen = () => {
     const username = useProfileStore((state: any) => state.username);
     const avatarUrl = useProfileStore((state: any) => state.avatarUrl);
     const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'hard'>('easy');
+    const isPremium = useProfileStore((state: any) => state.isPremium);
 
     useEffect(() => {
         const store = useGameStore.getState();
@@ -40,7 +41,8 @@ const GameRoomScreen = () => {
             isBot: false,
             sex: 'male',
             active: true,
-            lives: 3
+            lives: 3,
+            isPremium: isPremium,
         });
 
     }, []);
@@ -62,7 +64,8 @@ const GameRoomScreen = () => {
             isBot: isBot,
             sex: sex,
             active: active,
-            lives: lives
+            lives: lives,
+            isPremium: false
         };
         useGameStore.getState().addPlayer(player);
         if (playerCount <= 25) {
@@ -266,33 +269,78 @@ const GameRoomScreen = () => {
                                 <X size={20} color="red" />
                             )}
                         </View>
-                        <View className="flex-row flex-wrap justify-center items-center gap-4 mt-5">
-                            {players.map((player: Player) => (
-                                <View key={player.id} className="flex-col items-center gap-2">
-                                    <View className={`items-center justify-center w-20 h-20 rounded-full ${!player.isBot && player.avatarColor ? colorClasses[player.avatarColor as PlayerColor] : "bg-gray-500"}`}>
-                                        {player.isBot ? (
-                                            <Bot size={40} color="white" />
-                                        ) : player.avatar ? (
-                                            <Image source={{ uri: player.avatar }} className="w-20 h-20 rounded-full" />
-                                        ) : (
-                                            player.sex === 'male' ? (
-                                                <SimpleLineIcons name="user" color="white" size={40} />
-                                            ) : (
-                                                <SimpleLineIcons name="user-female" color="white" size={40} />
-                                            )
+                        <View className="flex-row flex-wrap justify-center items-center gap-y-7 gap-x-5 mt-5 pt-3">
+                            {players.map((player: Player) => {
+                                const isPlayerPremium = Boolean(
+                                    player.isPremium ||
+                                    (player.id === 1 && isPremium)
+                                );
+
+                                return (
+                                    <View key={player.id} className="flex-col items-center gap-2">
+                                        <View className="relative items-center justify-center">
+                                            {isPlayerPremium && (
+                                                <View
+                                                    style={{
+                                                        position: "absolute",
+                                                        top: -16,
+                                                        zIndex: 20,
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        shadowColor: "#facc15",
+                                                        shadowOffset: { width: 0, height: 2 },
+                                                        shadowOpacity: 0.8,
+                                                        shadowRadius: 4,
+                                                        elevation: 6,
+                                                    }}
+                                                >
+                                                    <Crown size={22} color="#facc15" fill="#facc15" />
+                                                </View>
+                                            )}
+
+                                            <View
+                                                className={`items-center justify-center w-20 h-20 rounded-full overflow-hidden ${!player.isBot && player.avatarColor ? colorClasses[player.avatarColor as PlayerColor] : "bg-gray-500"}`}
+                                                style={
+                                                    isPlayerPremium
+                                                        ? {
+                                                            borderWidth: 3.5,
+                                                            borderColor: "#facc15",
+                                                            shadowColor: "#facc15",
+                                                            shadowOffset: { width: 0, height: 0 },
+                                                            shadowOpacity: 0.6,
+                                                            shadowRadius: 8,
+                                                        }
+                                                        : undefined
+                                                }
+                                            >
+                                                {player.isBot ? (
+                                                    <Bot size={40} color="white" />
+                                                ) : player.avatar ? (
+                                                    <Image
+                                                        source={{ uri: player.avatar }}
+                                                        className="w-full h-full"
+                                                        resizeMode="cover"
+                                                    />
+                                                ) : player.sex === 'male' ? (
+                                                    <SimpleLineIcons name="user" color="white" size={40} />
+                                                ) : (
+                                                    <SimpleLineIcons name="user-female" color="white" size={40} />
+                                                )}
+                                            </View>
+                                        </View>
+
+                                        <Text className="text-white">{player.username}</Text>
+                                        {deleteOpen && player.id !== 1 && (
+                                            <TouchableOpacity
+                                                onPress={() => removePlayer(player.id)}
+                                                className="items-center justify-center w-8 h-8 rounded-full bg-red-500"
+                                            >
+                                                <X size={20} color="white" />
+                                            </TouchableOpacity>
                                         )}
                                     </View>
-                                    <Text className="text-white">{player.username}</Text>
-                                    {deleteOpen && player.id !== 1 && (
-                                        <TouchableOpacity
-                                            onPress={() => removePlayer(player.id)}
-                                            className="items-center justify-center w-8 h-8 rounded-full bg-red-500"
-                                        >
-                                            <X size={20} color="white" />
-                                        </TouchableOpacity>
-                                    )}
-                                </View>
-                            ))}
+                                );
+                            })}
                         </View>
                     </View>
 

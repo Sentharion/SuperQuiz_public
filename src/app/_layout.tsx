@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import "../global.css";
+import { AchievementToastProvider } from './context/AchievementProvider';
 
 
 SplashScreen.preventAutoHideAsync();
@@ -47,7 +48,9 @@ export default function TabLayout() {
         style={StyleSheet.absoluteFill}
       />
 
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "transparent" }, animation: "slide_from_right" }} />
+      <AchievementToastProvider>
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "transparent" }, animation: "slide_from_right" }} />
+      </AchievementToastProvider>
     </View>
   );
 }

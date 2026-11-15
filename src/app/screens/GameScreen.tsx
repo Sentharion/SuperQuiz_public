@@ -2,7 +2,7 @@ import { useRewardedInterstitial } from "@/hooks/useRewardedInterstitial";
 import { useProfileStore } from "@/store/profileStore";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Ad, Pause, Play, Volume2, VolumeOff } from "lucide-react-native";
+import { Ad, Crown, Pause, Play, Volume2, VolumeOff } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
     Animated,
@@ -50,7 +50,8 @@ const GameScreen = () => {
     const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
     const router = useRouter();
-    const isPremium = useProfileStore.getState().isPremium;
+    const isPremium = useProfileStore(s => s.isPremium);
+    const username = useProfileStore(s => s.username);
 
     const resultsReady = useGameStore(s => s.resultsReady);
     const setResultsReady = useGameStore(s => s.setResultsReady);
@@ -468,55 +469,91 @@ const GameScreen = () => {
                     {mode === "multiplayer" ? (
                         [...players]
                             .sort((a, b) => b.points - a.points)
-                            .map((player, index) => (
-                                <View
-                                    key={player.id}
-                                    className="flex-row items-center gap-3"
-                                >
-                                    <Text className="text-white text-lg font-bold w-6">
-                                        {index + 1}.
-                                    </Text>
-
+                            .map((player, index) => {
+                                const isPlayerPremium = Boolean(
+                                    player.isPremium || (!player.isBot && player.username === username && isPremium)
+                                );
+                                return (
                                     <View
-                                        className={`
-                                w-12 h-12 rounded-full
-                                justify-center items-center overflow-hidden
-                                ${player.avatarColor
-                                                ? colorClasses[player.avatarColor]
-                                                : "bg-red-500"
-                                            }
-                            `}
+                                        key={player.id}
+                                        className="flex-row items-center gap-3"
                                     >
-                                        {player.avatar ? (
-                                            <Image
-                                                source={{ uri: player.avatar }}
-                                                className="w-full h-full"
-                                                resizeMode="cover"
-                                            />
-                                        ) : player.sex === "male" ? (
-                                            <SimpleLineIcons
-                                                name="user"
-                                                color="white"
-                                                size={24}
-                                            />
-                                        ) : (
-                                            <SimpleLineIcons
-                                                name="user-female"
-                                                color="white"
-                                                size={24}
-                                            />
-                                        )}
+                                        <Text className="text-white text-lg font-bold w-6">
+                                            {index + 1}.
+                                        </Text>
+
+                                        <View className="relative items-center justify-center">
+                                            {isPlayerPremium && (
+                                                <View
+                                                    style={{
+                                                        position: "absolute",
+                                                        top: -11,
+                                                        zIndex: 20,
+                                                        shadowColor: "#facc15",
+                                                        shadowOffset: { width: 0, height: 1 },
+                                                        shadowOpacity: 0.8,
+                                                        shadowRadius: 3,
+                                                        elevation: 5,
+                                                    }}
+                                                >
+                                                    <Crown size={16} color="#facc15" fill="#facc15" />
+                                                </View>
+                                            )}
+
+                                            <View
+                                                className={`
+                                                    w-12 h-12 rounded-full
+                                                    justify-center items-center overflow-hidden
+                                                    ${player.avatarColor
+                                                        ? colorClasses[player.avatarColor]
+                                                        : "bg-red-500"
+                                                    }
+                                                `}
+                                                style={
+                                                    isPlayerPremium
+                                                        ? {
+                                                            borderWidth: 2.5,
+                                                            borderColor: "#facc15",
+                                                            shadowColor: "#facc15",
+                                                            shadowOffset: { width: 0, height: 0 },
+                                                            shadowOpacity: 0.5,
+                                                            shadowRadius: 4,
+                                                        }
+                                                        : undefined
+                                                }
+                                            >
+                                                {player.avatar ? (
+                                                    <Image
+                                                        source={{ uri: player.avatar }}
+                                                        className="w-full h-full"
+                                                        resizeMode="cover"
+                                                    />
+                                                ) : player.sex === "male" ? (
+                                                    <SimpleLineIcons
+                                                        name="user"
+                                                        color="white"
+                                                        size={24}
+                                                    />
+                                                ) : (
+                                                    <SimpleLineIcons
+                                                        name="user-female"
+                                                        color="white"
+                                                        size={24}
+                                                    />
+                                                )}
+                                            </View>
+                                        </View>
+
+                                        <Text className="text-white font-semibold flex-1">
+                                            {player.username}
+                                        </Text>
+
+                                        <Text className="text-primary font-bold text-lg">
+                                            {player.points} pkt
+                                        </Text>
                                     </View>
-
-                                    <Text className="text-white font-semibold flex-1">
-                                        {player.username}
-                                    </Text>
-
-                                    <Text className="text-primary font-bold text-lg">
-                                        {player.points} pkt
-                                    </Text>
-                                </View>
-                            ))
+                                );
+                            })
                     ) : (
                         <View className="items-center gap-2 py-2">
                             <Text className="text-gray-400 text-base">
@@ -693,6 +730,7 @@ const GameScreen = () => {
                         alignItems: "center",
                         justifyContent: "center",
                         paddingHorizontal: 16,
+                        paddingTop: 18,
                         gap: 12,
                         flexGrow: 1,
                     }}
@@ -710,6 +748,7 @@ const GameScreen = () => {
                             isBot={p.isBot}
                             sex={p.sex ?? "male"}
                             isCurrent={currentPlayerId === p.id}
+                            isPremium={Boolean(p.isPremium || (p.id === 1 && isPremium))}
                             canBeDesignated={
                                 awaitingDesignation &&
                                 isPlayerTurn &&
