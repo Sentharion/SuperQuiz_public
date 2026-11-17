@@ -1,7 +1,8 @@
 import { useGameStore } from "@/store/gameStore";
 import { SimpleLineIcons } from '@expo/vector-icons';
 import { Bot, Crown } from "lucide-react-native";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Svg, { Defs, LinearGradient, RadialGradient, Rect, Stop } from "react-native-svg";
 
 interface StandProps {
     id: number;
@@ -123,9 +124,113 @@ const Stand = ({
                                 {position}
                             </Text>
 
-                            <View className={`w-6 h-4 mx-1 ${lives >= 3 ? "bg-green-500" : "bg-emerald-800"}`} />
-                            <View className={`w-6 h-4 mx-1 ${lives >= 2 ? "bg-green-500" : "bg-emerald-800"}`} />
-                            <View className={`w-6 h-4 mx-1 ${lives >= 1 ? "bg-green-500" : "bg-emerald-800"}`} />
+                            {[3, 2, 1].map((lampNum) => {
+                                const isLit = lives >= lampNum;
+                                const gradId = `lamp-${id}-${lampNum}`;
+                                return (
+                                    <View
+                                        key={lampNum}
+                                        style={styles.lampContainer}
+                                    >
+                                        {isLit && <View style={styles.lampAura} />}
+
+                                        <View style={styles.lampInner}>
+                                            <Svg width="24" height="16" viewBox="0 0 24 16">
+                                                <Defs>
+                                                    {isLit ? (
+                                                        <>
+                                                            <RadialGradient
+                                                                id={`rad-${gradId}`}
+                                                                cx="8.4"
+                                                                cy="5.6"
+                                                                r="18"
+                                                                gradientUnits="userSpaceOnUse"
+                                                            >
+                                                                <Stop offset="0%" stopColor="#dcfce7" />
+                                                                <Stop offset="45%" stopColor="#4ade80" />
+                                                                <Stop offset="80%" stopColor="#16a34a" />
+                                                                <Stop offset="100%" stopColor="#14532d" />
+                                                            </RadialGradient>
+                                                            <LinearGradient
+                                                                id={`shine-${gradId}`}
+                                                                x1="0"
+                                                                y1="0"
+                                                                x2="0"
+                                                                y2="1"
+                                                            >
+                                                                <Stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
+                                                                <Stop offset="50%" stopColor="#ffffff" stopOpacity="0.25" />
+                                                                <Stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                                                            </LinearGradient>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <RadialGradient
+                                                                id={`rad-${gradId}`}
+                                                                cx="9.6"
+                                                                cy="6.4"
+                                                                r="18"
+                                                                gradientUnits="userSpaceOnUse"
+                                                            >
+                                                                <Stop offset="0%" stopColor="#14251a" />
+                                                                <Stop offset="80%" stopColor="#0b1c11" />
+                                                                <Stop offset="100%" stopColor="#050d08" />
+                                                            </RadialGradient>
+                                                            <LinearGradient
+                                                                id={`shadow-${gradId}`}
+                                                                x1="0"
+                                                                y1="0"
+                                                                x2="0"
+                                                                y2="1"
+                                                            >
+                                                                <Stop offset="0%" stopColor="#000000" stopOpacity="0.9" />
+                                                                <Stop offset="60%" stopColor="#000000" stopOpacity="0.35" />
+                                                                <Stop offset="100%" stopColor="#000000" stopOpacity="0" />
+                                                            </LinearGradient>
+                                                        </>
+                                                    )}
+                                                </Defs>
+
+                                                {/* Lamp Bulb & Border */}
+                                                <Rect
+                                                    x="0.5"
+                                                    y="0.5"
+                                                    width="23"
+                                                    height="15"
+                                                    rx="3"
+                                                    ry="3"
+                                                    fill={`url(#rad-${gradId})`}
+                                                    stroke={isLit ? "#bbf7d0" : "#1b4228"}
+                                                    strokeWidth="1"
+                                                />
+
+                                                {/* Inset highlight/shadow simulation */}
+                                                {isLit ? (
+                                                    <Rect
+                                                        x="1.5"
+                                                        y="1"
+                                                        width="21"
+                                                        height="5"
+                                                        rx="2"
+                                                        ry="2"
+                                                        fill={`url(#shine-${gradId})`}
+                                                    />
+                                                ) : (
+                                                    <Rect
+                                                        x="1"
+                                                        y="1"
+                                                        width="22"
+                                                        height="7"
+                                                        rx="2"
+                                                        ry="2"
+                                                        fill={`url(#shadow-${gradId})`}
+                                                    />
+                                                )}
+                                            </Svg>
+                                        </View>
+                                    </View>
+                                );
+                            })}
 
                             <Text className="text-lg text-yellow-400 font-bold mr-2">
                                 {position}
@@ -176,5 +281,35 @@ const Stand = ({
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    lampContainer: {
+        width: 24,
+        height: 16,
+        marginHorizontal: 4,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    lampAura: {
+        position: "absolute",
+        top: -2,
+        bottom: -2,
+        left: -2,
+        right: -2,
+        borderRadius: 5,
+        backgroundColor: "rgba(34, 197, 94, 0.55)",
+        shadowColor: "#22c55e",
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 1,
+        shadowRadius: 10,
+        elevation: 10,
+    },
+    lampInner: {
+        width: 24,
+        height: 16,
+        borderRadius: 3,
+        overflow: "hidden",
+    },
+});
 
 export default Stand;

@@ -12,7 +12,7 @@ export default function HomeScreen() {
 
   const [openModal, setOpenModal] = useState(false);
   const [gameMode, setGameMode] = useState<string>("");
-  const [botsCount, setBotsCount] = useState<number>(10);
+  const [botsCount, setBotsCount] = useState<number>(9);
   const [module, setModule] = useState<number | null>(null);
 
   const modalHandler = () => {
@@ -118,7 +118,11 @@ export default function HomeScreen() {
 
       <View className='flex flex-col gap-2'>
         <View className='mb-10'>
-          <Text className='text-5xl font-bold text-white text-center'>Super <Text className='text-border'>Quiz</Text></Text>
+          <Text className='text-5xl font-bold text-white text-center'>Super <Text className='text-border' style={{
+            textShadowColor: '#00D4E6',
+            textShadowOffset: { width: 0, height: 0 },
+            textShadowRadius: 12,
+          }}>Quiz</Text></Text>
           <Text className='mt-2 text-borderHover text-center text-sm tracking-[0.25em] uppercase'>Nowa generacja</Text>
         </View>
         <View className='flex-col lg:flex-row gap-4'>
